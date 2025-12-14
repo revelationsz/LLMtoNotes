@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM to Notes</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon">📝</span>
+        <h1>LLM to Notes</h1>
+      </div>
+    </header>
+
+    <div class="settings-section">
+      <div class="setting-row">
+        <label class="setting-label">
+          <span class="setting-icon">📁</span>
+          Obsidian Vault
+        </label>
+        <div class="vault-path-container">
+          <input 
+            type="text" 
+            id="vaultPathInput" 
+            class="vault-path-input"
+            placeholder="/path/to/your/obsidian/vault"
+          />
+          <button id="browseBtn" class="browse-btn" title="Enter path manually">
+            Edit
+          </button>
+        </div>
+        <div id="connectionStatus" class="connection-status"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
+

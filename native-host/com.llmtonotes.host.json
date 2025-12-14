@@ -1,0 +1,7 @@
+{
+  "name": "com.llmtonotes.host",
+  "description": "Native messaging host for LLM to Notes extension",
+  "path": "/Users/USER/llm-to-notes/llm_to_notes_host.py",
+  "type": "stdio",
+  "allowed_origins": ["chrome-extension://EXTENSION_ID/"]
+}

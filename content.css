@@ -1,0 +1,108 @@
+/* LLM to Notes - Content Script Styles */
+
+.llm-notes-btn-container {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 0;
+  margin-bottom: 8px;
+}
+
+.llm-notes-save-btn {
+  margin-left: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  /* Light mode default */
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #374151;
+}
+
+.llm-notes-save-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.llm-notes-save-btn:active {
+  transform: scale(0.98);
+}
+
+.llm-notes-save-btn.saved {
+  background-color: #10b981;
+  color: white;
+}
+
+.llm-notes-save-btn.error {
+  background-color: #ef4444;
+  color: white;
+}
+
+.llm-notes-save-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.llm-notes-save-btn svg {
+  flex-shrink: 0;
+}
+
+.llm-notes-save-btn svg.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .llm-notes-save-btn {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #d1d5db;
+  }
+  
+  .llm-notes-save-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+  
+  .llm-notes-save-btn.saved {
+    background-color: #10b981;
+    color: white;
+  }
+  
+  .llm-notes-save-btn.error {
+    background-color: #ef4444;
+    color: white;
+  }
+}
+
+/* ChatGPT specific dark mode (they use a class-based approach) */
+html.dark .llm-notes-save-btn,
+[data-theme="dark"] .llm-notes-save-btn {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #d1d5db;
+}
+
+html.dark .llm-notes-save-btn:hover,
+[data-theme="dark"] .llm-notes-save-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+html.dark .llm-notes-save-btn.saved,
+[data-theme="dark"] .llm-notes-save-btn.saved {
+  background-color: #10b981;
+  color: white;
+}
+
+html.dark .llm-notes-save-btn.error,
+[data-theme="dark"] .llm-notes-save-btn.error {
+  background-color: #ef4444;
+  color: white;
+}
