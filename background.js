@@ -6,7 +6,7 @@ const NATIVE_HOST_NAME = 'com.llmtonotes.host';
 // Listen for messages from content script or popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'saveToObsidian') {
-    handleSaveToObsidian(message.content)
+    handleSaveToObsidian(message.content, message.pageTitle)
       .then(sendResponse)
       .catch((error) => sendResponse({ success: false, error: error.message }));
     
@@ -24,7 +24,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // Save content to Obsidian via native messaging
-async function handleSaveToObsidian(content) {
+async function handleSaveToObsidian(content, pageTitle) {
   // Get vault path from storage
   const { vaultPath } = await chrome.storage.local.get(['vaultPath']);
   
@@ -38,7 +38,8 @@ async function handleSaveToObsidian(content) {
       {
         action: 'save',
         vaultPath: vaultPath,
-        content: content
+        content: content,
+        pageTitle: pageTitle || 'Untitled Conversation'
       },
       (response) => {
         if (chrome.runtime.lastError) {

@@ -1,16 +1,21 @@
-// Content script for injecting save buttons into ChatGPT responses
+// Content script for injecting save buttons into Claude responses
 
 const INJECTED_ATTR = 'data-llm-notes-injected';
 
-// Inject save button into an assistant response article
-function injectSaveButton(article) {
+// Inject save button into a Claude response
+function injectSaveButton(responseDiv) {
   // Skip if already processed
-  if (article.hasAttribute(INJECTED_ATTR)) {
+  if (responseDiv.hasAttribute(INJECTED_ATTR)) {
+    return;
+  }
+  
+  // Skip if still streaming
+  if (responseDiv.getAttribute('data-is-streaming') === 'true') {
     return;
   }
   
   // Mark as processed
-  article.setAttribute(INJECTED_ATTR, 'true');
+  responseDiv.setAttribute(INJECTED_ATTR, 'true');
   
   // Create button container
   const buttonContainer = document.createElement('div');
@@ -33,17 +38,12 @@ function injectSaveButton(article) {
     e.preventDefault();
     e.stopPropagation();
     
-    // Extract text content from the article
-    let textContent = article.innerText.trim();
+    // Extract text content from the font-claude-response div
+    const contentDiv = responseDiv.querySelector('.font-claude-response');
+    let textContent = contentDiv ? contentDiv.innerText.trim() : responseDiv.innerText.trim();
     
     // Remove "Save to Notes" button text that gets captured
     textContent = textContent.replace(/Save to Notes\n?/g, '');
-    
-    // For ChatGPT, remove the "ChatGPT said:" prefix
-    if (window.location.hostname.includes('chatgpt.com')) {
-      textContent = textContent.replace(/^ChatGPT said:\s*/i, '');
-    }
-    
     textContent = textContent.trim();
     
     if (!textContent) {
@@ -123,41 +123,42 @@ function injectSaveButton(article) {
   
   buttonContainer.appendChild(saveBtn);
   
-  // Find the nested agent-turn container (two levels deep in the article)
-  const agentTurnContainer = article.querySelector('.agent-turn');
-  
-  if (agentTurnContainer) {
-    // Insert at the beginning of the agent-turn div
-    agentTurnContainer.insertBefore(buttonContainer, agentTurnContainer.firstChild);
-  } else {
-    // Fallback: insert at beginning of article if structure differs
-    article.insertBefore(buttonContainer, article.firstChild);
-  }
+  // Insert button at the beginning of the response div
+  responseDiv.insertBefore(buttonContainer, responseDiv.firstChild);
 }
 
-// Process all existing assistant responses
+// Process all existing Claude responses
 function processExistingResponses() {
-  const articles = document.querySelectorAll('article[data-turn="assistant"]');
-  articles.forEach(injectSaveButton);
+  // Select divs that are finished streaming (Claude responses)
+  const responses = document.querySelectorAll('div[data-is-streaming="false"]');
+  responses.forEach(injectSaveButton);
 }
 
-// Set up MutationObserver to detect new responses
+// Set up MutationObserver to detect new responses and streaming completion
 function setupObserver() {
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
+      // Check for attribute changes (streaming -> finished)
+      if (mutation.type === 'attributes' && mutation.attributeName === 'data-is-streaming') {
+        const target = mutation.target;
+        if (target.getAttribute('data-is-streaming') === 'false') {
+          injectSaveButton(target);
+        }
+      }
+      
       // Check added nodes
       for (const node of mutation.addedNodes) {
         if (node.nodeType !== Node.ELEMENT_NODE) continue;
         
-        // Check if the added node is an assistant article
-        if (node.matches && node.matches('article[data-turn="assistant"]')) {
+        // Check if the added node is a completed response
+        if (node.matches && node.matches('div[data-is-streaming="false"]')) {
           injectSaveButton(node);
         }
         
-        // Check descendants for assistant articles
+        // Check descendants for completed responses
         if (node.querySelectorAll) {
-          const articles = node.querySelectorAll('article[data-turn="assistant"]');
-          articles.forEach(injectSaveButton);
+          const responses = node.querySelectorAll('div[data-is-streaming="false"]');
+          responses.forEach(injectSaveButton);
         }
       }
     }
@@ -166,7 +167,9 @@ function setupObserver() {
   // Observe the entire document for changes
   observer.observe(document.body, {
     childList: true,
-    subtree: true
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['data-is-streaming']
   });
   
   return observer;
@@ -187,3 +190,4 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+

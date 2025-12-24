@@ -36,9 +36,9 @@ def send_message(message):
     sys.stdout.buffer.flush()
 
 
-def sanitize_filename(text, max_length=50):
+def sanitize_name(text, max_length=50, fallback='Untitled'):
     """
-    Create a safe filename from text.
+    Create a safe filename/folder name from text.
     Removes special characters and limits length.
     """
     # Remove markdown headers
@@ -55,28 +55,29 @@ def sanitize_filename(text, max_length=50):
     
     # Fallback if empty
     if not sanitized:
-        sanitized = 'Untitled Note'
+        sanitized = fallback
     
     return sanitized
 
 
-def get_unique_filepath(vault_path, filename):
+def get_unique_filepath(folder_path, filename):
     """
     Get a unique filepath, appending timestamp if file exists.
     """
-    base_path = os.path.join(vault_path, f"{filename}.md")
+    base_path = os.path.join(folder_path, f"{filename}.md")
     
     if not os.path.exists(base_path):
         return base_path
     
     # Add timestamp to make unique
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    return os.path.join(vault_path, f"{filename}_{timestamp}.md")
+    return os.path.join(folder_path, f"{filename}_{timestamp}.md")
 
 
-def save_note(vault_path, content):
+def save_note(vault_path, content, page_title):
     """
-    Save note content as a markdown file in the vault.
+    Save note content as a markdown file in a folder based on page title.
+    Creates the folder if it doesn't exist.
     Returns the filepath on success, or error message on failure.
     """
     try:
@@ -90,12 +91,20 @@ def save_note(vault_path, content):
         if not content or not content.strip():
             return {'success': False, 'error': 'Note content is empty'}
         
+        # Create folder name from page title
+        folder_name = sanitize_name(page_title, max_length=100, fallback='Untitled Conversation')
+        folder_path = os.path.join(vault_path, folder_name)
+        
+        # Create folder if it doesn't exist
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        
         # Get first line for filename
         first_line = content.strip().split('\n')[0]
-        filename = sanitize_filename(first_line)
+        filename = sanitize_name(first_line, max_length=50, fallback='Untitled Note')
         
-        # Get unique filepath
-        filepath = get_unique_filepath(vault_path, filename)
+        # Get unique filepath within the folder
+        filepath = get_unique_filepath(folder_path, filename)
         
         # Write the file
         with open(filepath, 'w', encoding='utf-8') as f:
@@ -104,7 +113,8 @@ def save_note(vault_path, content):
         return {
             'success': True,
             'filepath': filepath,
-            'filename': os.path.basename(filepath)
+            'filename': os.path.basename(filepath),
+            'folder': folder_name
         }
     
     except Exception as e:
@@ -124,7 +134,8 @@ def main():
         if action == 'save':
             vault_path = message.get('vaultPath', '')
             content = message.get('content', '')
-            result = save_note(vault_path, content)
+            page_title = message.get('pageTitle', 'Untitled Conversation')
+            result = save_note(vault_path, content, page_title)
             send_message(result)
         
         elif action == 'ping':

@@ -21,20 +21,8 @@ CHROMIUM_MANIFEST_DIR="$HOME/Library/Application Support/Chromium/NativeMessagin
 BRAVE_MANIFEST_DIR="$HOME/Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts"
 EDGE_MANIFEST_DIR="$HOME/Library/Application Support/Microsoft Edge/NativeMessagingHosts"
 
-# Get extension ID from user
-echo "To complete installation, you need your Chrome extension ID."
-echo ""
-echo "To find it:"
-echo "  1. Go to chrome://extensions/"
-echo "  2. Enable 'Developer mode' (top right)"
-echo "  3. Find 'LLM to Notes' and copy the ID shown below it"
-echo ""
-read -p "Enter your extension ID: " EXTENSION_ID
-
-if [ -z "$EXTENSION_ID" ]; then
-    echo "Error: Extension ID is required"
-    exit 1
-fi
+# Fixed extension ID (derived from the key in manifest.json)
+EXTENSION_ID="jlopaibpmommnelcgjmjjhkcbflfecjl"
 
 # Create install directory
 echo ""
