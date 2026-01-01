@@ -26,14 +26,14 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   width: 360px;
-  min-height: 480px;
+  min-height: 182px;
 }
 
 /* Container */
 .container {
   display: flex;
   flex-direction: column;
-  min-height: 480px;
+  min-height: 182px;
   background: 
     radial-gradient(ellipse at top right, rgba(249, 115, 22, 0.08) 0%, transparent 50%),
     radial-gradient(ellipse at bottom left, rgba(249, 115, 22, 0.05) 0%, transparent 50%),
